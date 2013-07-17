@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Express 2012 for Windows Desktop
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "getitem", "getitem\getitem.csproj", "{07BFF2DA-E09E-4863-9695-492D0292C29F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GW2Miner.Domain", "..\GW2Miner-master\GW2Miner\GW2Miner.Domain\GW2Miner.Domain.csproj", "{7C9195B4-00C4-4A24-8B87-53AAE2DB47A3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GW2Miner.Engine", "..\GW2Miner-master\GW2Miner\GW2Miner.Engine\GW2Miner.Engine.csproj", "{FC8B3C57-AB04-4050-A3B7-2C98A83D57DD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{07BFF2DA-E09E-4863-9695-492D0292C29F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07BFF2DA-E09E-4863-9695-492D0292C29F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07BFF2DA-E09E-4863-9695-492D0292C29F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07BFF2DA-E09E-4863-9695-492D0292C29F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C9195B4-00C4-4A24-8B87-53AAE2DB47A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C9195B4-00C4-4A24-8B87-53AAE2DB47A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C9195B4-00C4-4A24-8B87-53AAE2DB47A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C9195B4-00C4-4A24-8B87-53AAE2DB47A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FC8B3C57-AB04-4050-A3B7-2C98A83D57DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC8B3C57-AB04-4050-A3B7-2C98A83D57DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC8B3C57-AB04-4050-A3B7-2C98A83D57DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC8B3C57-AB04-4050-A3B7-2C98A83D57DD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
