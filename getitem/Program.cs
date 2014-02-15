@@ -16,28 +16,49 @@ namespace getitem
 
         // returns true - ok
         //         false - error
-        static bool SalvageOrSell(Item item, double salvageCost, out bool toSalvage, double chanceToGetUpgrade)
+        static bool SalvageOrSell(Item item, double salvageCost, out bool toSalvage, double chanceToGetUpgrade, double chanceToGetEcto, double chanceToGetInsignia)
         {
             toSalvage = false;
 
             if (!item.IsRich || (item.TypeId != TypeEnum.Armor && item.TypeId != TypeEnum.Weapon)) return false;
 
+            gw2apiItem apiItem = trader.GetGW2APIItem(item.Id);
+            if (apiItem != null)
+            {
+                if ((apiItem.Flags & (GW2APIFlagsEnum.No_Salvage)) != 0)
+                {
+                    // Can't salvage
+                    toSalvage = false;
+                    return true;
+                }
+                else if ((apiItem.Flags & (GW2APIFlagsEnum.Account_Bound | GW2APIFlagsEnum.SoulBound_On_Acquire)) != 0)
+                {
+                    // Can't sell
+                    toSalvage = true;
+                    return true;
+                }
+            }
+
             Item upgrade = trader.get_upgrade(item, null);
 
-            if (upgrade == null) return false;
-
-            double upgradePrice = chanceToGetUpgrade * upgrade.MaxOfferUnitPrice * 0.85;
+            double upgradePrice = 0.0;
+            if (upgrade != null)
+            {
+                upgradePrice = chanceToGetUpgrade * upgrade.MaxOfferUnitPrice * 0.85;
+            }
             double itemPrice = Math.Max(item.MaxOfferUnitPrice * 0.85, item.VendorPrice);
 
-            if (item.MinLevel >= 68 && item.RarityId >= RarityEnum.Rare)
-            {
-                Task<List<Item>> ectoItemList = trader.get_items(19721);
-                int ectoPrice = ((Item)ectoItemList.Result[0]).MinSaleUnitPrice;
-                Console.WriteLine("Ecto price: {0}", ectoPrice);
+            Task<List<Item>> ectoItemList = trader.get_items(19721);
+            int ectoPrice = ((Item)ectoItemList.Result[0]).MinSaleUnitPrice;
+            Console.WriteLine("Ecto price: {0}", ectoPrice);
 
-                // assume 1 ecto per salvage
-                itemPrice = itemPrice - ectoPrice;
+            double insigniaPrice = 0.0;
+            if (item.RarityId >= RarityEnum.Exotic && (item.IsRich || item.HasGW2DBData))
+            {
+                insigniaPrice = trader.InsigniaPrice(item.Name, item.TypeId);
             }
+
+            itemPrice = itemPrice - (ectoPrice * chanceToGetEcto) - (insigniaPrice * chanceToGetInsignia);
 
             if (upgradePrice >= (itemPrice + salvageCost))
             {
@@ -130,15 +151,38 @@ namespace getitem
                             Console.WriteLine("% Sale Price Change Last Hour: {0}", richItem.SalePriceChangedLastHour);
                             Console.WriteLine("Type Id: {0}", richItem.TypeId);
                             Console.WriteLine("SubType Id: {0}", richItem.SubTypeDescription);
+                            Console.WriteLine("Monthly Offer Average Price: {0}", trader.monthlyOfferAverage(richItem.Id));
+                            Console.WriteLine("Monthly Sell Average Price: {0}", trader.monthlySellAverage(richItem.Id));
                             Console.WriteLine("If salvaging using Black Lion Salvage Kit...");
 
+                            //Salvage level 68+ rare with MSK = 0.9 ecto
+                            //Salvage level 68+ rare with BLSK = 1.25 ecto
+                            //Salvage level 68+ exotic with MSK = 1.27 ecto
+                            //Salvage level 68+ exotic with BLSK = 1.75 ecto
+                            //Salvage exotic that can give inscription/insignia with MSK = 42% chance of getting inscription/insignia
+                            //Salvage exotic that can give inscription/insignia with BLSK = 61% chance of getting inscription/insignia
+
+                            double ectoChanceBLSK = 0.0, ectoChanceMSK = 0.0;
+                            double insigniaChanceBLSK = 0.0, insigniaChanceMSK = 0.0;
+                            if (richItem.MinLevel >= 68 && richItem.RarityId >= RarityEnum.Rare)
+                            {
+                                ectoChanceBLSK = (richItem.RarityId == RarityEnum.Rare) ? 1.25 : 1.75;
+                                ectoChanceMSK = (richItem.RarityId == RarityEnum.Rare) ? 0.875 : 1.27;
+                            }
+
+                            if (richItem.RarityId >= RarityEnum.Exotic)
+                            {
+                                insigniaChanceBLSK = 0.61;
+                                insigniaChanceMSK = 0.42;
+                            }
+
                             bool toSalvage;
-                            if (!SalvageOrSell(richItem, BLSalvageCost, out toSalvage, 1.0))
+                            if (!SalvageOrSell(richItem, BLSalvageCost, out toSalvage, 1.0, ectoChanceBLSK, insigniaChanceBLSK))
                                 Console.WriteLine("More Profitable to sell for {0}", Math.Max(item.MaxOfferUnitPrice * 0.85, item.VendorPrice));
                             else if (!toSalvage)
                             {
                                 Console.WriteLine("If salvaging using Master Salvage Kit...");
-                                if (!SalvageOrSell(richItem, trader.MasterKitSalvageCost, out toSalvage, 0.8))
+                                if (!SalvageOrSell(richItem, trader.MasterKitSalvageCost, out toSalvage, 0.8, ectoChanceMSK, insigniaChanceMSK))
                                     Console.WriteLine("More Profitable to sell for {0}", Math.Max(item.MaxOfferUnitPrice * 0.85, item.VendorPrice));
                             }
                         }
